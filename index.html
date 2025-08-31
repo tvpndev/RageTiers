@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rage Tiers</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #121212;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    text-align: center;
+    padding: 20px 0;
+    color: #f39c12; /* Rage theme accent */
+  }
+  .tiers {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 5px;
+  }
+  .tier {
+    min-width: 130px;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    flex-shrink: 0;
+    background: #2a2a2a;
+  }
+  .tier h2 {
+    margin: 0;
+    padding: 8px 0;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+  }
+  /* LT tiers colors (Rage theme) */
+  #LT5 h2 { background: #2980b9; }
+  #LT4 h2 { background: #3498db; }
+  #LT3 h2 { background: #5dade2; }
+  #LT2 h2 { background: #85c1e9; }
+  #LT1 h2 { background: #aed6f1; }
+  /* HT tiers colors (Rage theme) */
+  #HT1 h2 { background: #f5b7b1; }
+  #HT2 h2 { background: #ec7063; }
+  #HT3 h2 { background: #e74c3c; }
+  #HT4 h2 { background: #cb4335; }
+  #HT5 h2 { background: #b03a2e; }
+
+  .item {
+    background: #333;
+    margin: 6px 0;
+    padding: 5px;
+    border-radius: 8px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .item img {
+    width: 45px;
+    height: 45px;
+    margin-bottom: 5px;
+  }
+  .item span {
+    font-size: 12px;
+  }
+  .item.dragging {
+    opacity: 0.5;
+  }
+  .item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #f39c12; /* Rage accent shadow */
+  }
+  button {
+    margin: 10px 5px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #555;
+    color: #fff;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #777;
+  }
+  @media (max-width: 800px) {
+    .tiers {
+      gap: 3px;
+    }
+    .tier {
+      min-width: 100px;
+    }
+    .item img {
+      width: 35px;
+      height: 35px;
+    }
+    .item span {
+      font-size: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Rage Tiers</h1>
+
+<div class="tiers" id="tiers-container">
+  <div class="tier" id="LT5"><h2>LT5</h2></div>
+  <div class="tier" id="LT4"><h2>LT4</h2></div>
+  <div class="tier" id="LT3"><h2>LT3</h2></div>
+  <div class="tier" id="LT2"><h2>LT2</h2></div>
+  <div class="tier" id="LT1"><h2>LT1</h2></div>
+  <div class="tier" id="HT1"><h2>HT1</h2></div>
+  <div class="tier" id="HT2"><h2>HT2</h2></div>
+  <div class="tier" id="HT3"><h2>HT3</h2></div>
+  <div class="tier" id="HT4"><h2>HT4</h2></div>
+  <div class="tier" id="HT5"><h2>HT5</h2></div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="saveList()">Save List</button>
+  <button onclick="loadList()">Load List</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+// Items with free placeholder icons
+const items = [
+  { name: "Mace", icon: "https://cdn-icons-png.flaticon.com/512/3081/3081933.png" },
+  { name: "SMP", icon: "https://cdn-icons-png.flaticon.com/512/179/179386.png" },
+  { name: "NethPot", icon: "https://cdn-icons-png.flaticon.com/512/619/619034.png" },
+  { name: "Sword", icon: "https://cdn-icons-png.flaticon.com/512/3081/3081921.png" },
+  { name: "Axe", icon: "https://cdn-icons-png.flaticon.com/512/3081/3081943.png" },
+  { name: "Diamond SMP", icon: "https://cdn-icons-png.flaticon.com/512/1046/1046784.png" },
+  { name: "Crystal", icon: "https://cdn-icons-png.flaticon.com/512/2907/2907360.png" },
+  { name: "UHC", icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }
+];
+
+// Tiers
+const tiers = ["LT5","LT4","LT3","LT2","LT1","HT1","HT2","HT3","HT4","HT5"];
+
+// Initialize drag-and-drop
+tiers.forEach(tier => {
+  new Sortable(document.getElementById(tier), {
+    group: 'shared',
+    animation: 150,
+    ghostClass: 'dragging'
+  });
+});
+
+// Populate default items in LT5 tier
+window.onload = function() {
+  const lt5 = document.getElementById("LT5");
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `<img src="${item.icon}" alt="${item.name}"><span>${item.name}</span>`;
+    lt5.appendChild(div);
+  });
+};
+
+// Save tier list
+function saveList() {
+  const data = {};
+  tiers.forEach(tier => {
+    data[tier] = Array.from(document.getElementById(tier).children)
+                     .filter(el => el.classList.contains("item"))
+                     .map(el => el.querySelector("span").textContent);
+  });
+  localStorage.setItem("rageTierList", JSON.stringify(data));
+  alert("Rage Tier list saved!");
+}
+
+// Load tier list
+function loadList() {
+  const data = JSON.parse(localStorage.getItem("rageTierList") || "{}");
+  tiers.forEach(tier => {
+    const container = document.getElementById(tier);
+    container.innerHTML = `<h2>${tier}</h2>`;
+    if (data[tier]) {
+      data[tier].forEach(name => {
+        const itemData = items.find(i => i.name === name);
+        if (itemData) {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `<img src="${itemData.icon}" alt="${itemData.name}"><span>${itemData.name}</span>`;
+          container.appendChild(div);
+        }
+      });
+    }
+  });
+}
+</script>
+
+</body>
+</html>
